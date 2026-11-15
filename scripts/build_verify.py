@@ -41,22 +41,3 @@ for part, ids in json.load(open(ROOT / "scratch" / "extra_split.json")).items():
         "kernel_sources": ["gouravanirudh/liars-chatroom-test", "gouravanirudh/liars-chatroom-eval"],
         "model_sources": []}, indent=2))
     print("built", out)
-
-# Qwen3-32B-AWQ arbiter shards (ids only)
-for part, ids in json.load(open(ROOT / "scratch" / "big_split.json")).items():
-    cfg = dict(base, part="extra-" + part, model="Qwen/Qwen3-32B-AWQ", k2=3, k_train=3, gmu=0.90,
-               max_model_len=10240, s2_tokens=8500, llm_extra={"enforce_eager": True, "max_num_seqs": 24}, **ids)
-    if ids.get("bench96"):
-        cfg["k_train"] = 1
-    slug = f"liars-32b-{part}"
-    out = ROOT / "kaggle" / "build" / slug
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "kernel.py").write_text(f"LIB_B64 = {base64.b64encode(lib.encode()).decode()!r}\n"
-                                   f"CFG_JSON = {json.dumps(json.dumps(cfg))}\n\n" + main)
-    (out / "kernel-metadata.json").write_text(json.dumps({
-        "id": f"gouravanirudh/{slug}", "title": slug, "code_file": "kernel.py", "language": "python",
-        "kernel_type": "script", "is_private": "true", "enable_gpu": "true", "enable_tpu": "false",
-        "enable_internet": "true", "dataset_sources": [], "competition_sources": ["the-liars-chatroom"],
-        "kernel_sources": ["gouravanirudh/liars-chatroom-test", "gouravanirudh/liars-chatroom-eval"],
-        "model_sources": []}, indent=2))
-    print("built", out)
